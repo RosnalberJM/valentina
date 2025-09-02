@@ -1,0 +1,837 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explota Burbujas de Amor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow: hidden;
+      height: 100vh;
+      background: linear-gradient(135deg, #f76b90, #ffb3e6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+    }
+
+    .background-bubbles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .background-bubble {
+      position: absolute;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.03) 50%, transparent);
+      border: 1px solid rgba(255, 0, 0);
+      border-radius: 50%;
+      animation: float 15s infinite ease-in-out;
+      opacity: 0.3;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(0.6);
+        opacity: 0.3;
+      }
+      100% {
+        transform: translateY(-20vh) scale(1.1);
+        opacity: 0.05;
+      }
+    }
+
+    .message {
+      position: absolute;
+      z-index: 3;
+      font-size: 1.5rem;
+      font-weight: 400;
+      font-family: 'Parisienne', cursive;
+      color: #fff;
+      text-shadow: 
+        0 0 8px rgba(255, 105, 180, 0.8),
+        0 0 12px rgba(255, 182, 193, 0.6),
+        0 0 16px rgba(255, 255, 255, 0.4);
+      background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(255, 182, 193, 0.2));
+      padding: 12px 30px;
+      border-radius: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.6) rotate(-8deg);
+      animation: romanticPop 3s ease-out forwards;
+      pointer-events: none;
+      text-align: center;
+      max-width: 400px;
+      backdrop-filter: blur(5px);
+    }
+
+    .image-container {
+      position: absolute;
+      z-index: 3;
+      padding: 10px;
+      border-radius: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(255, 182, 193, 0.2));
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.6) rotate(-8deg);
+      animation: romanticPop 3s ease-out forwards;
+      pointer-events: none;
+      backdrop-filter: blur(5px);
+    }
+
+    .image-container img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 15px;
+      object-fit: cover;
+    }
+
+    @media only screen and (max-width: 768px) {
+      .image-container {
+        padding: 8px;
+      }
+      .image-container img {
+        max-width: 150px;
+        max-height: 150px;
+      }
+    }
+
+    @keyframes romanticPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6) rotate(-8deg) translateY(40px);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15) rotate(0deg) translateY(0);
+      }
+      80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(4deg) translateY(-20px);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9) rotate(8deg) translateY(-40px);
+      }
+    }
+
+    .overlay {
+      position: absolute;
+      z-index: 4;
+      color: #ffffff;
+      text-align: center;
+      padding: 15px 25px;
+      top: 10px;
+      font-size: 1.5rem;
+      font-family: 'Parisienne', cursive;
+      text-shadow: 0 0 8px rgba(255, 105, 180, 0.6);
+      background: linear-gradient(45deg, rgba(255, 105, 180, 0.3), rgba(255, 182, 193, 0.1));
+      border-radius: 15px;
+      max-width: 80%;
+      backdrop-filter: blur(3px);
+    }
+
+    .music-control {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .music-btn {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #ff4d6d, #e6395c);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6);
+    }
+
+    .music-btn:active {
+      transform: scale(0.95);
+    }
+
+    .music-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    .volume-control {
+      width: 120px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 77, 109, 0.5);
+      margin-top: 10px;
+      display: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .volume-control.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .volume-control input {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .volume-control input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #ff4d6d;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .volume-control input::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #ff4d6d;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      border: none;
+    }
+
+    /* Mobile adjustments */
+    @media only screen and (max-width: 768px) {
+      .message {
+        font-size: 1rem;
+        padding: 8px 20px;
+        border-radius: 20px;
+        max-width: 300px;
+        text-shadow: 
+          0 0 6px rgba(255, 105, 180, 0.8),
+          0 0 10px rgba(255, 182, 193, 0.6),
+          0 0 12px rgba(255, 255, 255, 0.4);
+      }
+
+      .overlay {
+        font-size: 1rem;
+        padding: 10px 50px;
+        border-radius: 10px;
+        max-width: 90%;
+      }
+
+      .background-bubble {
+        width: 120px !important;
+        height: 120px !important;
+        animation-duration: 12s !important;
+      }
+
+      .music-control {
+        right: 15px;
+      }
+
+      .music-btn {
+        width: 35px;
+        height: 35px;
+      }
+
+      .music-btn svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .volume-control {
+        width: 100px;
+        margin-top: 8px;
+      }
+
+      .volume-control input {
+        height: 10px;
+      }
+
+      .volume-control input::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+      }
+
+      .volume-control input::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Parisienne';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/parisienne/v13/E21i_d3kivvAkxhLEVZpQyZwD9Ku.woff2) format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    /* latin */
+    @font-face {
+      font-family: 'Parisienne';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/parisienne/v13/E21i_d3kivvAkxhLEVZpQyhwDw.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-bubbles" id="backgroundBubbles"></div>
+  <canvas id="gameCanvas"></canvas>
+  <div class="overlay">Haz clic en las burbujas para descubrir mensajes o fotos de amor.💕</div>
+    <div class="music-control">
+    <button class="music-btn" id="musicBtn" aria-label="Toggle music">
+      <svg id="playIcon" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;">
+        <path d="M6 19h4V5H6zm8-14v14h4V5z"/>
+      </svg>
+    </button>
+    <div class="volume-control" id="volumeControl">
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" aria-label="Volume control">
+    </div>
+  </div>
+  <audio id="backgroundMusic" loop preload="auto">
+<source src="musica.mp3" type="audio/mpeg">    Tu navegador no soporta el elemento de audio.
+  </audio>
+    <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const backgroundBubbles = document.getElementById('backgroundBubbles');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const bubbles = [];
+    const particles = [];
+    const popRings = [];
+
+    const messages = ["Eres la mejor novia del mundo 😍","Eres mi mundo entero 😍🥰😘","Justos , todo es perfecto \ud83d\udc96\ud83e\udd79","Eres mi sue\u00f1o echo realidad \ud83d\ude0d"];
+
+    // Usar sólo imágenes locales
+    const preferredLocalImages = [
+      'img1.jpg',
+      'img2.jpg',
+      'img3.jpg',
+      'img4.jpg'
+    ];
+    let images = [];
+
+    // Initialize audio files for pop effects (usa rutas relativas si las tienes en tu proyecto)
+    const popSounds = [
+      new Audio('1.mp3'),
+      new Audio('2.mp3'),
+      new Audio('3.mp3'),
+      new Audio('4.mp3'),
+      new Audio('5.mp3')
+    ];
+
+    class Bubble {
+      constructor() {
+        let validPosition = false;
+        let attempts = 0;
+        const maxAttempts = 12;
+        let x, y, radius;
+
+        // Adjust bubble size for mobile
+        const isMobile = window.innerWidth <= 768;
+        const baseRadius = isMobile ? 50 : 70;
+        const radiusVariation = isMobile ? 30 : 50;
+        const minDistance = isMobile ? 10 : 20;
+
+        while (!validPosition && attempts < maxAttempts) {
+          radius = baseRadius + Math.random() * radiusVariation;
+          x = Math.random() * Math.max(1, (canvas.width - radius * 2)) + radius;
+          y = Math.random() * Math.max(1, (canvas.height - radius * 2)) + radius;
+          validPosition = true;
+
+          for (let bubble of bubbles) {
+            const dx = bubble.x - x;
+            const dy = bubble.y - y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDist = bubble.radius + radius + minDistance;
+            if (distance < minDist) {
+              validPosition = false;
+              break;
+            }
+          }
+          attempts++;
+        }
+
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4;
+        this.hue = Math.random() * 360;
+        this.squishX = 1;
+        this.squishY = 1;
+        this.squishTime = 0;
+        this.targetSquishX = 1;
+        this.targetSquishY = 1;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.squishX, this.squishY);
+
+        const gradient = ctx.createRadialGradient(
+          -this.radius * 0.4,
+          -this.radius * 0.4,
+          this.radius * 0.2,
+          0,
+          0,
+          this.radius
+        );
+        gradient.addColorStop(0, `hsla(${this.hue}, 95%, 70%, 0.8)`);
+        gradient.addColorStop(0.5, `hsla(${this.hue}, 90%, 60%, 0.5)`);
+        gradient.addColorStop(1, `hsla(${this.hue}, 85%, 50%, 0.2)`);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = `hsla(${this.hue}, 85%, 50%, 0.5)`;
+        ctx.shadowBlur = 25;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.4, -this.radius * 0.4, this.radius * 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.restore();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Handle wall collisions with squish effect
+        if (this.x < this.radius) {
+          this.x = this.radius;
+          this.vx = -this.vx * 0.8;
+          this.squish(0.6, 1.4);
+        } else if (this.x > canvas.width - this.radius) {
+          this.x = canvas.width - this.radius;
+          this.vx = -this.vx * 0.8;
+          this.squish(0.6, 1.4);
+        }
+        if (this.y < this.radius) {
+          this.y = this.radius;
+          this.vy = -this.vy * 0.8;
+          this.squish(1.4, 0.6);
+        } else if (this.y > canvas.height - this.radius) {
+          this.y = canvas.height - this.radius;
+          this.vy = -this.vy * 0.8;
+          this.squish(1.4, 0.6);
+        }
+
+        // Update squish effect with faster recovery
+        if (this.squishTime > 0) {
+          this.squishX += (this.targetSquishX - this.squishX) * 0.3;
+          this.squishY += (this.targetSquishY - this.squishY) * 0.3;
+          this.squishTime--;
+          if (this.squishTime <= 0) {
+            this.squishX = 1;
+            this.squishY = 1;
+          }
+        }
+      }
+
+      squish(scaleX, scaleY) {
+        this.squishX = scaleX;
+        this.squishY = scaleY;
+        this.targetSquishX = 1;
+        this.targetSquishY = 1;
+        this.squishTime = 8;
+      }
+    }
+
+    class Particle {
+      constructor(x, y, hue) {
+        this.x = x;
+        this.y = y;
+        this.radius = (window.innerWidth <= 768 ? 3 : 5) + Math.random() * 3;
+        this.vx = (Math.random() - 0.5) * 8;
+        this.vy = (Math.random() - 0.5) * 8;
+        this.hue = hue;
+        this.alpha = 1.5;
+        this.life = 30;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${this.hue}, 95%, 70%, ${this.alpha})`;
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= 0.95;
+        this.vy *= 0.95;
+        this.alpha -= 0.02;
+        this.life--;
+      }
+    }
+
+    class BubblePopRing {
+      constructor(x, y, hue) {
+        this.x = x;
+        this.y = y;
+        this.radius = 0;
+        this.maxRadius = (window.innerWidth <= 768 ? 50 : 80) + Math.random() * 30;
+        this.alpha = 0.6;
+        this.hue = hue;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `hsla(${this.hue}, 90%, 80%, ${this.alpha})`;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      update() {
+        this.radius += 3;
+        this.alpha -= 0.02;
+      }
+
+      isDone() {
+        return this.alpha <= 0 || this.radius >= this.maxRadius;
+      }
+    }
+
+    function handleCollisions() {
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const b1 = bubbles[i];
+          const b2 = bubbles[j];
+          const dx = b2.x - b1.x;
+          const dy = b2.y - b1.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const minDistance = b1.radius + b2.radius;
+
+          if (distance < minDistance) {
+            const nx = dx / distance;
+            const ny = dy / distance;
+            const dvx = b2.vx - b1.vx;
+            const dvy = b2.vy - b1.vy;
+            const dot = dvx * nx + dvy * ny;
+
+            if (dot < 0) {
+              const impulse = 2 * dot / 2;
+              b1.vx += impulse * nx;
+              b1.vy += impulse * ny;
+              b2.vx -= impulse * nx;
+              b2.vy -= impulse * ny;
+
+              const overlap = (minDistance - distance) / 2;
+              b1.x -= overlap * nx;
+              b1.y -= overlap * ny;
+              b2.x += overlap * nx;
+              b2.y += overlap * ny;
+
+              const relativeVelocity = Math.sqrt(dvx * dvx + dvy * dvy);
+              const squishFactor = Math.min(0.5 + relativeVelocity * 0.1, 0.7);
+              const stretchFactor = 1 / squishFactor;
+              const angle = Math.atan2(dy, dx);
+              const squishX = squishFactor + (1 - squishFactor) * Math.abs(Math.sin(angle));
+              const squishY = stretchFactor - (stretchFactor - 1) * Math.abs(Math.cos(angle));
+              b1.squish(squishX, squishY);
+              b2.squish(squishX, squishY);
+            }
+          }
+        }
+      }
+    }
+
+    function createBubble() {
+      if (bubbles.length < (window.innerWidth <= 768 ? 6 : 8)) {
+        bubbles.push(new Bubble());
+      }
+    }
+
+    function createBackgroundBubble() {
+      const bubble = document.createElement('div');
+      bubble.className = 'background-bubble';
+      const size = window.innerWidth <= 768 ? 120 : 200 + Math.random() * 120;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${window.innerWidth <= 768 ? 12 : 15 + Math.random() * 10}s`;
+      backgroundBubbles.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 25000);
+    }
+
+    function createPopEffect(x, y, hue) {
+      const particleCount = window.innerWidth <= 768 ? 15 : 25;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle(x, y, hue));
+      }
+      popRings.push(new BubblePopRing(x, y, hue));
+      const randomSound = popSounds[Math.floor(Math.random() * popSounds.length)];
+      randomSound.currentTime = 0;
+      randomSound.play().catch(error => console.log("Error playing sound:", error));
+    }
+
+    function showMessageOrImage(x, y) {
+      const isImage = images.length > 0 && Math.random() < 0.3; // 30% si hay imágenes cargadas
+      if (isImage) {
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'image-container';
+        const img = document.createElement('img');
+        img.src = images[Math.floor(Math.random() * images.length)];
+        img.alt = 'Imagen romántica';
+        imageContainer.appendChild(img);
+        imageContainer.style.left = `${x}px`;
+        imageContainer.style.top = `${y}px`;
+        document.body.appendChild(imageContainer);
+        setTimeout(() => imageContainer.remove(), 3000);
+      } else {
+        const message = document.createElement('div');
+        message.className = 'message';
+        message.textContent = messages[Math.floor(Math.random() * messages.length)];
+        message.style.left = `${x}px`;
+        message.style.top = `${y}px`;
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      handleCollisions();
+
+      bubbles.forEach(bubble => {
+        bubble.draw();
+        bubble.update();
+      });
+
+      particles.forEach((particle, index) => {
+        particle.draw();
+        particle.update();
+        if (particle.life <= 0) {
+          particles.splice(index, 1);
+        }
+      });
+
+      popRings.forEach((ring, index) => {
+        ring.draw();
+        ring.update();
+        if (ring.isDone()) {
+          popRings.splice(index, 1);
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const bubble = bubbles[i];
+        const dx = mouseX - bubble.x;
+        const dy = mouseY - bubble.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < bubble.radius) {
+          createPopEffect(bubble.x, bubble.y, bubble.hue);
+          bubbles.splice(i, 1);
+          showMessageOrImage(mouseX, mouseY);
+          createBubble();
+          break;
+        }
+      }
+    });
+
+    for (let i = 0; i < (window.innerWidth <= 768 ? 5 : 7); i++) {
+      createBubble();
+    }
+
+    setInterval(createBackgroundBubble, 3000);
+    setInterval(createBubble, 3000);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      bubbles.forEach(bubble => {
+        if (bubble.x > canvas.width - bubble.radius) {
+          bubble.x = canvas.width - bubble.radius;
+        }
+        if (bubble.y > canvas.height - bubble.radius) {
+          bubble.y = canvas.height - bubble.radius;
+        }
+      });
+    });
+
+    // Precarga de imágenes (mantiene sólo las que cargan bien)
+    async function preloadImages(candidates) {
+      const checks = candidates.map(src => new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(src);
+        img.onerror = () => resolve(null);
+        img.src = src;
+      }));
+      const results = await Promise.all(checks);
+      return results.filter(Boolean);
+    }
+
+    // Music control logic (inicia sólo tras interacción del usuario)
+    function setupMusicControls() {
+      const music = document.getElementById("backgroundMusic");
+      const musicBtn = document.getElementById("musicBtn");
+      const playIcon = document.getElementById("playIcon");
+      const pauseIcon = document.getElementById("pauseIcon");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const volumeControl = document.getElementById("volumeControl");
+
+      if (!music || !musicBtn || !volumeSlider || !volumeControl) {
+        console.error('Music or control elements not found');
+        return;
+      }
+
+      music.volume = volumeSlider.value;
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+
+      function toggleMusic() {
+        if (music.paused) {
+          music.play().then(() => {
+            console.log('Music playing at:', music.currentTime);
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+          }).catch(error => {
+            console.error('Error playing audio:', error.message);
+          });
+        } else {
+          music.pause();
+          console.log('Music paused at:', music.currentTime);
+          playIcon.style.display = 'block';
+          pauseIcon.style.display = 'none';
+        }
+      }
+
+      musicBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMusic();
+        if (!volumeControl.classList.contains('visible')) {
+          volumeControl.classList.add('visible');
+          clearTimeout(hideVolumeTimeout);
+          hideVolumeTimeout = setTimeout(() => volumeControl.classList.remove('visible'), 2000);
+        } else {
+          volumeControl.classList.remove('visible');
+        }
+      });
+
+      let hideVolumeTimeout = null;
+      volumeSlider.addEventListener('input', (e) => {
+        music.volume = e.target.value;
+        console.log('Volume set to:', music.volume);
+        clearTimeout(hideVolumeTimeout);
+        volumeControl.classList.add('visible');
+      });
+
+      volumeSlider.addEventListener('change', () => {
+        hideVolumeTimeout = setTimeout(() => volumeControl.classList.remove('visible'), 2000);
+      });
+
+      volumeControl.addEventListener('mouseenter', () => clearTimeout(hideVolumeTimeout));
+      volumeControl.addEventListener('mouseleave', () => {
+        hideVolumeTimeout = setTimeout(() => volumeControl.classList.remove('visible'), 2000);
+      });
+
+      volumeSlider.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        clearTimeout(hideVolumeTimeout);
+      });
+      volumeSlider.addEventListener('touchend', () => {
+        hideVolumeTimeout = setTimeout(() => volumeControl.classList.remove('visible'), 2000);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!volumeControl.contains(e.target) && !musicBtn.contains(e.target)) {
+          volumeControl.classList.remove('visible');
+          clearTimeout(hideVolumeTimeout);
+        }
+      });
+
+      music.addEventListener('loadeddata', () => console.log('Audio data loaded'));
+      music.addEventListener('error', (e) => console.error('Audio error:', e.message));
+      music.addEventListener('play', () => console.log('Music play event'));
+      music.addEventListener('pause', () => console.log('Music pause event'));
+    }
+    
+    // Initialize everything
+    async function init() {
+      // Usa únicamente rutas locales y conserva sólo las que cargan correctamente
+      const candidates = [...preferredLocalImages];
+      images = await preloadImages(candidates);
+      if (!images || images.length === 0) {
+        console.warn('No se pudieron cargar imágenes. Se mostrarán sólo mensajes.');
+      }
+      setupMusicControls();
+      animate();
+    }
+
+    init();
+  </script>
+</body>
+</html>
